@@ -1,0 +1,3 @@
+$ as -o prog3a prog3a.s
+$ ld -o prog3a prog3a.o
+$ ld -o bothparts part1.o part2.o
