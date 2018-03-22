@@ -26,6 +26,7 @@ main:
 
 finish:
     BL  _printf             @ branch to print procedure with return
+    @B   main                @ branch to main with no return
     B   _exit               @ branch to exit procedure with no return
    
 add:
@@ -114,7 +115,7 @@ _scanf3:
     PUSH {LR}                @ store LR since scanf call overwrites
     SUB SP, SP, #4          @ make room on stack
     LDR R0, =format_str     @ R0 contains address of format string
-    MOV R5, SP              @ move SP to R5 to store entry on stack
+    MOV R1, SP              @ move SP to R5 to store entry on stack
     BL scanf                @ call scanf
     LDR R0, [SP]            @ load value at SP into R0
     ADD SP, SP, #4          @ restore the stack pointer
