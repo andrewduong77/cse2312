@@ -26,7 +26,7 @@ main:
 
 finish:
     BL  _printf             @ branch to print procedure with return
-    @B   main                @ branch to main with no return
+    B   main                @ branch to main with no return
     B   _exit               @ branch to exit procedure with no return
    
 add:
