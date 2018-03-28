@@ -45,16 +45,16 @@ readloop:
     B   readloop            @ branch to next loop iteration
 readdone:
     PUSH {R0}               @ backup register before printf
-    PUSH {R5}               @ backup register before printf
-    MOV R1, R5              @ move maximum value to R1 for printf
-    BL _printf_max          @ branch to print procedure with return
-    POP {R5}                @ restore register
-    POP {R0}                @ restore register
-    PUSH {R0}               @ backup register before printf
     PUSH {R6}               @ backup register before printf
     MOV R1, R6              @ move minimum value to R1 for printf
     BL _printf_min          @ branch to print procedure with return
     POP {R6}                @ restore register
+    POP {R0}                @ restore register
+    PUSH {R0}               @ backup register before printf
+    PUSH {R5}               @ backup register before printf
+    MOV R1, R5              @ move maximum value to R1 for printf
+    BL _printf_max          @ branch to print procedure with return
+    POP {R5}                @ restore register
     POP {R0}                @ restore register
     B _exit                 @ exit if done
    
