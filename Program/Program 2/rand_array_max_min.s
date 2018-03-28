@@ -1,3 +1,8 @@
+/******************************************************************************
+* @file rand_array.s
+* @author Christopher D. McMurrough
+******************************************************************************/
+ 
 .global main
 .func main
    
@@ -14,8 +19,9 @@ writeloop:
     PUSH {R2}               @ backup element address before procedure call
     BL _getrand             @ get a random number
     MOV R1, R0              @ move generated random number to R1 for mod evaluation
-    MOV R2, #1000           @ move a constant value to R2 for mod evaluation
+    MOV R2, #100            @ move a constant value to R2 for mod evaluation
     BL _mod_unsigned        @ compute the remainder of R1 / R2
+    ADD R0, R0, #200        @ offset R0 by 200 by adding 200 to R0
     POP {R2}                @ restore element address
     STR R0, [R2]            @ write the address of a[i] to a[i]
     POP {R0}                @ restore iterator
@@ -125,7 +131,7 @@ _getrand:
     PUSH {LR}               @ backup return address
     BL rand                 @ get a random number
     POP {PC}                @ return 
-   
+
 .data
 
 .balign 4
