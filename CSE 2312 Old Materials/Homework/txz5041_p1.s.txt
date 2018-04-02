@@ -1,0 +1,125 @@
+/* txz5041 */
+
+
+.global main
+.func main
+
+main:
+    BL  _prompt1         @ branch to prompt procedure with return
+    BL  _getnum1          @ branch to scanf procedure with return
+    MOV R8, R0
+    BL  _prompt2
+    BL  _getreg
+    MOV R9, R0
+    BL  _prompt3
+    BL  _getnum2
+    MOV R10, R0         @ move return value R0 to argument register R1
+    BL  _printa         @ branch to print procedure with return
+    BL  _prints
+    BL  _printm
+
+    B   _exit           @ branch to exit procedure with no return
+
+_exit:
+    MOV R7, #4          @ write syscall, 4
+    MOV R0, #1          @ output stream to monitor, 1
+    MOV R2, #21         @ print string length
+    LDR R1,=exit_str    @ string at label exit_str:
+    SWI 0               @ execute syscall
+    MOV R7, #1          @ terminate syscall, 1
+    SWI 0               @ execute syscall
+
+_prompt1:
+    MOV R7, #4              @ write syscall, 4
+    MOV R0, #1              @ output stream to monitor, 1
+    MOV R2, #31             @ print string length
+    LDR R1, =prompt_lf     @ string at label prompt_str:
+    SWI 0                   @ execute syscall
+    MOV PC, LR              @ return
+
+_getnum1:
+    MOV R7, #3              @ write syscall, 3
+    MOV R0, #0              @ input stream from monitor, 0
+    MOV R2, #1              @ read a single character
+    LDR R1, =read_num1      @ store the character in data memory
+    SWI 0                   @ execute the system call
+    LDR R0, [R1]            @ move the character to the return register
+    AND R0, #0xFF           @ mask out all but the lowest 8 bits
+    MOV PC, LR              @ return
+
+_prompt2:
+    MOV R7, #4              @ write syscall, 4
+    MOV R0, #1              @ output stream to monitor, 1
+    MOV R2, #31             @ print string length
+    LDR R1, =prompt_mid     @ string at label prompt_str:
+    SWI 0                   @ execute syscall
+    MOV PC, LR              @ return
+
+_getreg:
+    MOV R7, #3              @ write syscall, 3
+    MOV R0, #0              @ input stream from monitor, 0
+    MOV R2, #1              @ read a single character
+    LDR R1, =read_reg      @ store the character in data memory
+    SWI 0                   @ execute the system call
+    LDR R0, [R1]            @ move the character to the return register
+    AND R0, #0xFF           @ mask out all but the lowest 8 bits
+    MOV PC, LR              @ return
+
+_prompt3:
+    MOV R7, #4              @ write syscall, 4
+    MOV R0, #1              @ output stream to monitor, 1
+    MOV R2, #31             @ print string length
+    LDR R1, =prompt_rt     @ string at label prompt_str:
+    SWI 0                   @ execute syscall
+    MOV PC, LR              @ return
+
+_getnum2:
+    MOV R7, #3              @ write syscall, 3
+    MOV R0, #0              @ input stream from monitor, 0
+    MOV R2, #1              @ read a single character
+    LDR R1, =read_num2      @ store the character in data memory
+    SWI 0                   @ execute the system call
+    LDR R0, [R1]            @ move the character to the return register
+    AND R0, #0xFF           @ mask out all but the lowest 8 bits
+    MOV PC, LR              @ return
+
+
+_printa:
+    MOV R4, LR          @ store LR since printf call overwrites
+    LDR R0,=print_str   @ R0 contains formatted string address
+    MOV R1, R1          @ printf argument 1
+    MOV R2, R2         @ printf argument 2
+    ADD R3, R1, R2      @ printf argument 3
+    BL printf           @ call printf
+    MOV PC, R4          @ return
+
+_prints:
+    MOV R4, LR          @ store LR since printf call overwrites
+    LDR R0,=print_str1  @ R0 contains formatted string address
+    MOV R1, R1        @ printf argument 1
+    MOV R2, R2        @ printf argument 2
+    SUB R3, R1, R2      @ printf argument 3
+    BL printf           @ call printf
+    MOV PC, R4          @ return
+
+_printm:
+    MOV R4, LR          @ store LR since printf call overwrites
+    LDR R0,=print_str2  @ R0 contains formatted string address
+    MOV R1, R1        @ printf argument 1
+    MOV R2, R2        @ printf argument 2
+    MUL R3, R1, R2      @ printf argument 3
+    BL printf           @ call printf
+    MOV PC, R4          @ return
+
+
+.data
+prompt_lf:     .asciz "Enter left integer: "
+read_num1:     .asciz      "%d"
+prompt_mid:     .asciz "Enter operation: "
+read_reg:     .asciz      "%d"
+prompt_rt:     .asciz "Enter right integer: "
+read_num2:     .asciz      "%d"
+print_str:      .asciz "Printing 3 numbers: %d %d %d \n"
+print_str1:     .asciz "Printing 3 numbers: %d %d %d \n"
+print_str2:     .asciz "Printing 3 numbers: %d %d %d \n"
+exit_str:       .ascii "Terminating program.\n"
