@@ -45,9 +45,9 @@ _part:
     
  _printf:
     PUSH {LR}
-    MOV R3, R2
-    MOV R2, R1
-    MOV R1, R0
+    @MOV R3, R2
+    @MOV R2, R1
+    @MOV R1, R0
     LDR R0, =printf_str     @ R0 contains formatted string address
     @MOV R1, R1              @ R1 contains printf argument (redundant line)
     BL printf               @ call printf
