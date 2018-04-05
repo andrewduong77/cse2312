@@ -2,73 +2,66 @@
 .func main
    
 main:
-    BL  _prompt1            @ branch to prompt1 procedure with return
-    BL  _scanf              @ branch to scanf procedure with return
-    MOV R1, R0              @ move return value R0 to argument register R1 for n
-    PUSH {R1}
-    BL  _prompt2            @ branch to prompt2 procedure with return
-    BL  _scanf              @ branch to scanf procedure with return
-    MOV R2, R0              @ move return value R0 to argument register R2 for m
-    POP {R1}
-    PUSH {R2}
-    PUSH {R1}
-    BL _count_partitions
-    POP {R1}
-    POP {R2}
-    MOV R3, R2
-    MOV R2, R1
-    MOV R1, R0
-    BL  _printf             @ branch to print procedure with return
-    B main
-    @B   _exit               @ branch to exit procedure with no return
+    BL  _prompt1	@ branch to prompt1 procedure with return
+    BL  _scanf		@ branch to scanf procedure with return
+    MOV R1, R0		@ move return value R0 to argument register R1 for n
+    PUSH {R1}		@ backup R1 for n to stack
+    BL  _prompt2	@ branch to prompt2 procedure with return
+    BL  _scanf		@ branch to scanf procedure with return
+    MOV R2, R0		@ move return value R0 to argument register R2 for m
+    POP {R1}		@ restore R1 for n from stack
+    PUSH {R2}		@ backup R2 for m to stack
+    PUSH {R1}		@ backup R1 for n to stack
+    BL _count_partitions	@ call the _count_partitions procedure
+    POP {R1}		@ restore R1 for n from stack
+    POP {R2}		@ restore R2 for m from stack
+    MOV R3, R2		@ move R2 to R3 for _printf
+    MOV R2, R1		@ move R1 to R2 for _printf
+    MOV R1, R0		@ move R0 to R1 for _printf
+    BL  _printf		@ branch to print procedure with return
+    B main		@ loop back main
 
 _count_partitions:
-   PUSH {LR}		@ store the return address
+    PUSH {LR}		@ store the return address
 
-   CMP R1, #0		@ compare the input argument to 0
-   MOVEQ R0, #1		@ set return value to 1 if equal
-   POPEQ {PC}		@ restore stack pointer and return if equal
+    CMP R1, #0
+    MOVEQ R0, #1	@ if(n == 0)
+    POPEQ {PC}		@     return 1;
 
-   CMP R1, #0		@ first else-if
-   MOVLT R0, #0		@ if n < 0, then return 0 by putting it into R0
-   POPLT {PC}		@ go back to previous function call
+    CMP R1, #0
+    MOVLT R0, #0	@ if(n < 0)
+    POPLT {PC}		@     return 0;
 
-   CMP R2, #0		@ second else-if, does m == 0?
-   MOVEQ R0, #0		@ return 0 by putting 0 into R0 if n == 0
-   POPEQ {PC}		@ restore stack pointer to previous call
+    CMP R2, #0
+    MOVEQ R0, #0	@ if(m == 0)
+    POPEQ {PC}		@     return 0;
 
-   PUSH {R1}		@ put n onto stack
-   PUSH {R2}		@ put m onto stack
-   SUB R2, R2, #1	@ change second argument to (m-1)
+    PUSH {R1}		@ backup R1 for n to stack
+    PUSH {R2}		@ backup R2 for m to stack
 
-   @@ AT THIS POINT, R1 SHOULD STILL HOLD n AND R2 SHOULD HOLD (m-1) @@
+    SUB R2, R2, #1	@ set R2 to m - 1
 
-   BL _count_partitions	@ value of count_partitions(n, m-1) should be in R0
+    @ R1 is n
+    @ R2 is m - 1
 
-   POP {R2}		@ put original m back into second argument register
-   POP {R1}		@ put original n back into first argument register
+    BL _count_partitions	@ calling count_partitions(n, m - 1), returning value to R0
 
-   MOV R3, R0
+    POP {R2}		@ restore R2 for m from stack
+    POP {R1}		@ restore R1 for n from stack
 
-   SUB R1, R1, R2	@ calculate (n-m) for the left recursive call
+    MOV R3, R0		@ store value returned by count_partitions(n, m - 1) in R3
 
-   @@ AT THIS POINT, R1 SHOULD HOLD (n-m) and R2 SHOULD HOLD ORIGINAL M @@
+    SUB R1, R1, R2	@ set R1 to n - m
 
-   PUSH {R3}		@ backup the value returned by count_partitions(n, m-1)
-   BL _count_partitions	@ value of count_partitions(n-m, m) should be in R0
-   POP {R3}		@ restore the return value of the right recursive call
-   ADD R0, R0, R3	@ add the previous return value to the new return value
+    @ R1 is n - m
+    @ R2 is m
 
-   POP {PC}		@ restore the stack pointer and return
-   
-_exit:  
-    MOV R7, #4              @ write syscall, 4
-    MOV R0, #1              @ output stream to monitor, 1
-    MOV R2, #21             @ print string length
-    LDR R1, =exit_str       @ string at label exit_str:
-    SWI 0                   @ execute syscall
-    MOV R7, #1              @ terminate syscall, 1
-    SWI 0                   @ execute syscall
+    PUSH {R3}		@ backup R3 to stack
+    BL _count_partitions	@ calling count_partitions(n - m, m), returning value to R0
+    POP {R3}		@ restore R3 from stack
+    ADD R0, R0, R3	@ add R3 to R0 (count_partitions(n, m - 1) + count_partitions(n - m, m)) and store it in R0 to return
+
+    POP {PC}		@ restore the stack pointer and return
 
 _prompt1:
     MOV R7, #4              @ write syscall, 4
