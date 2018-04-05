@@ -9,8 +9,12 @@ main:
     BL  _prompt2            @ branch to prompt2 procedure with return
     BL  _scanf              @ branch to scanf procedure with return
     MOV R2, R0              @ move return value R0 to argument register R2 for m
+    POP {R1}
+    PUSH {R2}
+    PUSH {R1}
     BL _count_partitions
     POP {R1}
+    POP {R2}
     MOV R3, R2
     MOV R2, R1
     MOV R1, R0
@@ -42,6 +46,7 @@ _count_partitions:
 
    POP {R2}		@ put original m back into second argument register
    POP {R1}		@ put original n back into first argument register
+
    SUB R1, R1, R2	@ calculate (n-m) for the left recursive call
 
    @@ AT THIS POINT, R1 SHOULD HOLD (n-m) and R2 SHOULD HOLD ORIGINAL M @@
