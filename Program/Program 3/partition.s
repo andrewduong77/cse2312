@@ -28,7 +28,6 @@ _count_partitions:
     MOVEQ R0, #1	@ if(n == 0)
     POPEQ {PC}		@     return 1;
 
-    CMP R1, #0
     MOVLT R0, #0	@ if(n < 0)
     POPLT {PC}		@     return 0;
 
@@ -80,21 +79,20 @@ _prompt2:
     MOV PC, LR              @ return
        
 _printf:
-    MOV R4, LR              @ store LR since printf call overwrites
-    LDR R0, =printf_str     @ R0 contains formatted string address
-    MOV R1, R1              @ R1 contains printf argument (redundant line)
+    PUSH {LR}		    @ store LR since printf call overwrites
+    LDR R0, =printf_str     @ R0 contains formatted string address\
     BL printf               @ call printf
-    MOV PC, R4              @ return
+    POP {PC}		    @ return
     
 _scanf:
-    PUSH {LR}                @ store LR since scanf call overwrites
+    PUSH {LR}               @ store LR since scanf call overwrites
     SUB SP, SP, #4          @ make room on stack
     LDR R0, =format_str     @ R0 contains address of format string
     MOV R1, SP              @ move SP to R1 to store entry on stack
     BL scanf                @ call scanf
     LDR R0, [SP]            @ load value at SP into R0
     ADD SP, SP, #4          @ restore the stack pointer
-    POP {PC}                 @ return
+    POP {PC}                @ return
 
 .data
 format_str:     .asciz      "%d"
