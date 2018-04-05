@@ -19,7 +19,8 @@ main:
     MOV R2, R1
     MOV R1, R0
     BL  _printf             @ branch to print procedure with return
-    B   _exit               @ branch to exit procedure with no return
+    B main
+    @B   _exit               @ branch to exit procedure with no return
 
 _count_partitions:
    PUSH {LR}		@ store the return address
@@ -47,14 +48,16 @@ _count_partitions:
    POP {R2}		@ put original m back into second argument register
    POP {R1}		@ put original n back into first argument register
 
+   MOV R3, R0
+
    SUB R1, R1, R2	@ calculate (n-m) for the left recursive call
 
    @@ AT THIS POINT, R1 SHOULD HOLD (n-m) and R2 SHOULD HOLD ORIGINAL M @@
 
-   PUSH {R0}		@ backup the value returned by count_partitions(n, m-1)
+   PUSH {R3}		@ backup the value returned by count_partitions(n, m-1)
    BL _count_partitions	@ value of count_partitions(n-m, m) should be in R0
-   POP {R4}		@ restore the return value of the right recursive call
-   ADD R0, R0, R4	@ add the previous return value to the new return value
+   POP {R3}		@ restore the return value of the right recursive call
+   ADD R0, R0, R3	@ add the previous return value to the new return value
 
    POP {PC}		@ restore the stack pointer and return
    
