@@ -5,19 +5,16 @@ main:
     BL  _prompt1            @ branch to prompt1 procedure with return
     BL  _scanf              @ branch to scanf procedure with return
     MOV R1, R0              @ move return value R0 to argument register R1 for n
-PUSH {R1}
+    PUSH {R1}
     BL  _prompt2            @ branch to prompt2 procedure with return
     BL  _scanf              @ branch to scanf procedure with return
     MOV R2, R0              @ move return value R0 to argument register R2 for m
-POP {R1}
-BL _count_partitions
-PUSH {R2}
-PUSH {R1}
-PUSH {R0}
+    BL _count_partitions
+    POP {R1}
+    MOV R3, R2
+    MOV R2, R1
+    MOV R1, R0
     BL  _printf             @ branch to print procedure with return
-POP {R0}
-POP {R1}
-POP {R2}
     B   _exit               @ branch to exit procedure with no return
 
 _count_partitions:
