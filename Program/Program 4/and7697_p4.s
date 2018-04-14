@@ -2,10 +2,10 @@
 .func main
    
 main:
-    BL  _prompt1
+    BL  _prompt1	    @ branch to prompt1 procedure with return
     BL  _scanf		    @ branch to scanf procedure with return
     PUSH {R0}		    @ backup R0 for n for numerator to stack
-    BL  _prompt2
+    BL  _prompt2	    @ branch to prompt2 procedure with return
     BL  _scanf		    @ branch to scanf procedure with return
     MOV R1, R0		    @ move return value R0 to argument register R1 for d for denominator
     POP {R0}		    @ restore R0 for n for numerator from stack
