@@ -17,12 +17,21 @@ main:
     BL  _scanf		    @ branch to scanf procedure with return
     MOV R1, R0		    @ move return value R0 to argument register R1 for d for denominator
     POP {R0}		    @ restore R0 for n for numerator from stack
+    PUSH {R1}		    @ backup R1 for d for demoninator to stack
+    PUSH {R0}		    @ backup R0 for n for numerator to stack
+    MOV R2, R1		    @ move R1 to R2 for _printf procedure call
+    MOV R1, R0		    @ move R0 to R1 for _printf procedure call
+    BL  _printf		    @ print the inputs
+    MOV R0, R1		    @ move R1 back to R0
+    MOV R1, R2		    @ move R2 back to R1
+    POP {R0}		    @ restore R0 for n for numerator from stack
+    POP {R1}		    @ restore R1 for d for denominator from stack
     VMOV S0, R0             @ move the numerator to floating point register
     VMOV S1, R1             @ move the denominator to floating point register
     VCVT.F32.U32 S0, S0     @ convert unsigned bit representation to single float
     VCVT.F32.U32 S1, S1     @ convert unsigned bit representation to single float
 	
-    VDIV.F32 S2, S0, S1     @ compute S2 = S0 * S1
+    VDIV.F32 S2, S0, S1     @ compute S2 = S0 / S1
     
     VCVT.F64.F32 D4, S2     @ covert the result to double precision for printing
     VMOV R1, R2, D4         @ split the double VFP register into two ARM registers
@@ -38,6 +47,12 @@ _exit:
     SWI 0                   @ execute syscall
     MOV R7, #1              @ terminate syscall, 1
     SWI 0                   @ execute syscall
+       
+_printf:
+    PUSH {LR}		    @ store LR since printf call overwrites
+    LDR R0, =printf_str     @ R0 contains formatted string address
+    BL printf               @ call printf
+    POP {PC}		    @ return
 
 _printf_result:
     PUSH {LR}               @ push LR to stack
@@ -57,5 +72,6 @@ _scanf:
 
 .data
 format_str:     .asciz      "%d"
-result_str:     .asciz      "Pi is approximately 22/7 = %f \n"
+result_str:     .asciz      " %f \n"
+printf_str:     .asciz      "%d / %d = "
 exit_str:       .ascii      "Terminating program.\n"
