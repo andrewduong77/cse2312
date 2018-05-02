@@ -1,3 +1,8 @@
+/******************************************************************************
+* @file rand_array.s
+* @author Christopher D. McMurrough
+******************************************************************************/
+ 
 .global main
 .func main
    
@@ -34,8 +39,6 @@ readloop:
     PUSH {R1}               @ backup register before printf
     PUSH {R2}               @ backup register before printf
     MOV R2, R1              @ move array value to R2 for printf
-    BL  _max                @ get maximum value
-    BL  _min                @ get minimum value
     MOV R1, R0              @ move array index to R1 for printf
     BL  _printf             @ branch to print procedure with return
     POP {R2}                @ restore register
@@ -44,31 +47,7 @@ readloop:
     ADD R0, R0, #1          @ increment index
     B   readloop            @ branch to next loop iteration
 readdone:
-    PUSH {R0}               @ backup register before printf
-    PUSH {R6}               @ backup register before printf
-    MOV R1, R6              @ move minimum value to R1 for printf
-    BL _printf_min          @ branch to print procedure with return
-    POP {R6}                @ restore register
-    POP {R0}                @ restore register
-    PUSH {R0}               @ backup register before printf
-    PUSH {R5}               @ backup register before printf
-    MOV R1, R5              @ move maximum value to R1 for printf
-    BL _printf_max          @ branch to print procedure with return
-    POP {R5}                @ restore register
-    POP {R0}                @ restore register
     B _exit                 @ exit if done
-   
-_max:
-    PUSH {LR}               @ store the return address
-    CMP R2, R5
-    MOVHI R5, R2            @ if (R2 > R5) move R2 to R5
-    POP {PC}                @ restore the stack pointer and return
-   
-_min:
-    PUSH {LR}               @ store the return address
-    CMP R2, R6
-    MOVLO R6, R2            @ if (R2 < R6) move R2 to R6
-    POP {PC}                @ restore the stack pointer and return
     
 _exit:  
     MOV R7, #4              @ write syscall, 4
@@ -100,18 +79,6 @@ _printf:
     LDR R0, =printf_str     @ R0 contains formatted string address
     BL printf               @ call printf
     POP {PC}                @ restore the stack pointer and return
-       
-_printf_max:
-    PUSH {LR}               @ store the return address
-    LDR R0, =printf_max     @ R0 contains formatted string address
-    BL printf               @ call printf
-    POP {PC}                @ restore the stack pointer and return
-       
-_printf_min:
-    PUSH {LR}               @ store the return address
-    LDR R0, =printf_min     @ R0 contains formatted string address
-    BL printf               @ call printf
-    POP {PC}                @ restore the stack pointer and return
     
 _seedrand:
     PUSH {LR}               @ backup return address
@@ -131,8 +98,6 @@ _getrand:
 .balign 4
 a:              .skip       400
 printf_str:     .asciz      "a[%d] = %d\n"
-printf_max:     .asciz      "MAXIMUM VALUE = %d\n"
-printf_min:     .asciz      "MINIMUM VALUE = %d\n"
 debug_str:
 .asciz "R%-2d   0x%08X  %011d \n"
 exit_str:       .ascii      "Terminating program.\n"
